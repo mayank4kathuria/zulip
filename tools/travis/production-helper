@@ -44,6 +44,12 @@ EOF
 
 su zulip -c /home/zulip/deployments/current/scripts/setup/initialize-database
 
+ls /home/zulip/deployments/current/
+ls /home/zulip/deployments/current/zulip-venv/bin/
+ls /etc/zulip/
+
+/home/zulip/deployments/current/zulip-venv/bin/uwsgi --ini /etc/zulip/uwsgi.ini
+
 # TODO: Ideally this would test actually logging in, but this is a start.
 echo; echo "Now testing that the newly installed server's homepage loads"; echo
 
