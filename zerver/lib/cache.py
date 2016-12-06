@@ -65,7 +65,10 @@ def get_or_create_key_prefix():
         #
         # Having a fixed key is OK since we don't support running
         # multiple copies of the casper tests at the same time anyway.
-        return u'casper_tests:'
+        if settings.TORNADO_SERVER:
+            return u'casper_tests:'
+        else:
+            return u'django_tests:'
     # directory `var` should exist in production
     subprocess.check_call(["mkdir", "-p", os.path.join(settings.DEPLOY_ROOT, "var")])
 
