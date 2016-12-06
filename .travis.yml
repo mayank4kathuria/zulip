@@ -20,9 +20,6 @@ env:
     - COVERALLS_SERVICE_NAME=travis-pro
     - COVERALLS_REPO_TOKEN=hnXUEBKsORKHc8xIENGs9JjktlTb2HKlG
     - BOTO_CONFIG=/tmp/nowhere
-  matrix:
-    - TEST_SUITE=frontend
-    - TEST_SUITE=backend
 language: python
 python:
   - "2.7"
@@ -30,10 +27,6 @@ python:
 matrix:
   include:
     - python: "3.4"
-      env: TEST_SUITE=static-analysis
-    - python: "3.4"
-      env: TEST_SUITE=production
-    - python: "2.7"
       env: TEST_SUITE=production
 # command to run tests
 script:
