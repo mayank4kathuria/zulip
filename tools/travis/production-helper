@@ -44,6 +44,8 @@ EOF
 
 su zulip -c /home/zulip/deployments/current/scripts/setup/initialize-database
 
+su zulip -c "/home/zulip/deployments/current/manage.py runuwsgi"
+
 # TODO: Ideally this would test actually logging in, but this is a start.
 echo; echo "Now testing that the newly installed server's homepage loads"; echo
 
