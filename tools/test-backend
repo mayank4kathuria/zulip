@@ -15,6 +15,7 @@ sanity_check.check_venv(__file__)
 import django
 from django.conf import settings
 from django.test.utils import get_runner
+from django.test.runner import default_test_processes
 
 target_fully_covered = {path for target in [
     'analytics/tests/*.py',
@@ -262,7 +263,15 @@ if __name__ == "__main__":
         subprocess.call(generate_fixtures_command)
 
     TestRunner = get_runner(settings)
-    test_runner = TestRunner(failfast=options.fatal_errors, verbosity=2)
+    """
+    - This can be used to customize the number of processes.
+      os.environ['DJANGO_TEST_PROCESSES'] = 2
+    - By default, the number of processes will be equal to
+      multiprocessing.cpu_count().
+    - Set parallel=1 to run tests in series.
+    """
+    test_runner = TestRunner(failfast=options.fatal_errors, verbosity=2,
+                             parallel=default_test_processes(), keepdb=True)
     failures = test_runner.run_tests(suites, full_suite=full_suite)
 
     templates_not_rendered = test_runner.get_shallow_tested_templates()
