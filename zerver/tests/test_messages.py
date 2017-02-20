@@ -21,7 +21,6 @@ from zerver.lib.test_helpers import (
     message_ids, message_stream_count,
     most_recent_message,
     most_recent_usermessage,
-    queries_captured,
 )
 
 from zerver.lib.test_classes import (
@@ -435,10 +434,8 @@ class StreamMessagesTest(ZulipTestCase):
                                subject, content, forwarder_user_profile=sender, realm=realm)
 
         send_message() # prime the caches
-        with queries_captured() as queries:
+        with self.assertNumQueries(10):
             send_message()
-
-        self.assert_max_length(queries, 14)
 
     def test_stream_message_dict(self):
         # type: () -> None
@@ -563,7 +560,7 @@ class MessageDictTest(ZulipTestCase):
         self.assertTrue(num_ids >= 600)
 
         t = time.time()
-        with queries_captured() as queries:
+        with self.assertNumQueries(6):
             rows = list(Message.get_raw_db_rows(ids))
 
             for row in rows:
@@ -572,7 +569,6 @@ class MessageDictTest(ZulipTestCase):
         delay = time.time() - t
         # Make sure we don't take longer than 1ms per message to extract messages.
         self.assertTrue(delay < 0.001 * num_ids)
-        self.assert_max_length(queries, 11)
         self.assertEqual(len(rows), num_ids)
 
     def test_applying_markdown(self):

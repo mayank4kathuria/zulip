@@ -34,7 +34,7 @@ from zerver.lib.actions import do_deactivate_realm, do_set_realm_default_languag
 from zerver.lib.digest import send_digest_email
 from zerver.lib.notifications import (
     enqueue_welcome_emails, one_click_unsubscribe_link, send_local_email_template_with_delay)
-from zerver.lib.test_helpers import find_pattern_in_email, find_key_by_email, queries_captured, \
+from zerver.lib.test_helpers import find_pattern_in_email, find_key_by_email, \
     HostRequestMock
 from zerver.lib.test_classes import (
     ZulipTestCase,
@@ -262,10 +262,9 @@ class LoginTest(ZulipTestCase):
             self.make_stream(stream_name, realm=realm)
 
         set_default_streams(realm, stream_dict)
-        with queries_captured() as queries:
+        with self.assertNumQueries(69):
             self.register("test@zulip.com", "test")
         # Ensure the number of queries we make is not O(streams)
-        self.assert_max_length(queries, 69)
         user_profile = get_user_profile_by_email('test@zulip.com')
         self.assertEqual(get_session_dict_user(self.client.session), user_profile.id)
         self.assertFalse(user_profile.enable_stream_desktop_notifications)

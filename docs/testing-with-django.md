@@ -197,11 +197,10 @@ with a series of individual queries that give O(N) latency.  (The
 remedy is often just to call `select_related()`, but sometimes it
 requires a more subtle restructuring of the code.)
 
-We try to prevent these bugs in our tests by using a context manager
-called `queries_captured()` that captures the SQL queries used by
-the back end during a particular operation.  We make assertions about
-those queries, often simply asserting that the number of queries is
-below some threshold.
+We try to prevent these bugs in our tests by using `assertNumQueries()`
+that checks the count of SQL queries used by the back end during a
+particular operation.  We make assertions about those queries, often
+simply asserting that the number of queries is below some threshold.
 
 ### Event-based tests
 
