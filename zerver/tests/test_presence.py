@@ -10,6 +10,7 @@ from zerver.lib.actions import do_deactivate_user
 from zerver.lib.test_helpers import (
     get_user_profile_by_email,
     make_client,
+    queries_captured,
 )
 from zerver.lib.test_classes import (
     ZulipTestCase,
@@ -40,8 +41,10 @@ class ActivityTest(ZulipTestCase):
                 count=count,
                 last_visit=last_visit
             )
-        with self.assertNumQueries(1):
+        with queries_captured() as queries:
             self.client_get('/activity')
+
+        self.assert_max_length(queries, 13)
 
 class UserPresenceTests(ZulipTestCase):
     def test_invalid_presence(self):

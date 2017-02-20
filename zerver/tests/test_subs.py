@@ -9,7 +9,7 @@ from django.utils.translation import ugettext as _
 from zerver.lib import cache
 
 from zerver.lib.test_helpers import (
-    get_subscription, tornado_redirected_to_list
+    get_subscription, queries_captured, tornado_redirected_to_list
 )
 
 from zerver.lib.test_classes import (
@@ -1494,12 +1494,13 @@ class SubscriptionAPITest(ZulipTestCase):
         streams_to_sub = ['multi_user_stream']
         events = [] # type: List[Dict[str, Any]]
         with tornado_redirected_to_list(events):
-            with self.assertNumQueries(50):
+            with queries_captured() as queries:
                 self.common_subscribe_to_streams(
                     self.test_email,
                     streams_to_sub,
                     dict(principals=ujson.dumps([email1, email2])),
                 )
+        self.assert_max_length(queries, 52)
 
         self.assert_length(events, 8)
         for ev in [x for x in events if x['event']['type'] not in ('message', 'stream')]:
@@ -1521,12 +1522,13 @@ class SubscriptionAPITest(ZulipTestCase):
         # Now add ourselves
         events = []
         with tornado_redirected_to_list(events):
-            with self.assertNumQueries(8):
+            with queries_captured() as queries:
                 self.common_subscribe_to_streams(
                     self.test_email,
                     streams_to_sub,
                     dict(principals=ujson.dumps([self.test_email])),
                 )
+        self.assert_max_length(queries, 13)
 
         self.assert_length(events, 2)
         add_event, add_peer_event = events
@@ -1735,7 +1737,7 @@ class SubscriptionAPITest(ZulipTestCase):
 
         events = [] # type: List[Dict[str, Any]]
         with tornado_redirected_to_list(events):
-            with self.assertNumQueries(7):
+            with queries_captured() as queries:
                 self.common_subscribe_to_streams(
                     'starnine@mit.edu',
                     streams,
@@ -1744,6 +1746,7 @@ class SubscriptionAPITest(ZulipTestCase):
         # Make sure Zephyr mirroring realms such as MIT do not get
         # any tornado subscription events
         self.assert_length(events, 0)
+        self.assert_max_length(queries, 7)
 
     def test_bulk_subscribe_many(self):
         # type: () -> None
@@ -1753,13 +1756,14 @@ class SubscriptionAPITest(ZulipTestCase):
         for stream_name in streams:
             self.make_stream(stream_name)
 
-        # Make sure we don't make O(streams) queries
-        with self.assertNumQueries(16):
+        with queries_captured() as queries:
                 self.common_subscribe_to_streams(
                     self.test_email,
                     streams,
                     dict(principals=ujson.dumps([self.test_email])),
                 )
+        # Make sure we don't make O(streams) queries
+        self.assert_max_length(queries, 14)
 
     @slow("common_subscribe_to_streams is slow")
     def test_subscriptions_add_for_principal(self):
@@ -2281,13 +2285,14 @@ class GetSubscribersTest(ZulipTestCase):
             invite_only=True)
         self.assert_json_success(ret)
 
-        with self.assertNumQueries(4):
+        with queries_captured() as queries:
             subscriptions = gather_subscriptions(self.user_profile)
         self.assertTrue(len(subscriptions[0]) >= 11)
         for sub in subscriptions[0]:
             if not sub["name"].startswith("stream_"):
                 continue
             self.assertTrue(len(sub["subscribers"]) == len(users_to_subscribe))
+        self.assert_length(queries, 4)
 
     @slow("common_subscribe_to_streams is slow")
     def test_never_subscribed_streams(self):
@@ -2311,7 +2316,7 @@ class GetSubscribersTest(ZulipTestCase):
             dict(principals=ujson.dumps(users_to_subscribe)),
             invite_only=True)
         self.assert_json_success(ret)
-        with self.assertNumQueries(3):
+        with queries_captured() as queries:
             subscribed, unsubscribed, never_subscribed = gather_subscriptions_helper(self.user_profile)
         self.assertTrue(len(never_subscribed) >= 10)
 
@@ -2320,6 +2325,7 @@ class GetSubscribersTest(ZulipTestCase):
             if stream_dict["name"].startswith("stream_"):
                 self.assertFalse(stream_dict['name'] == "stream_invite_only_1")
                 self.assertTrue(len(stream_dict["subscribers"]) == len(users_to_subscribe))
+        self.assert_length(queries, 3)
 
     @slow("common_subscribe_to_streams is slow")
     def test_gather_subscriptions_mit(self):
@@ -2339,7 +2345,7 @@ class GetSubscribersTest(ZulipTestCase):
             invite_only=True)
         self.assert_json_success(ret)
 
-        with self.assertNumQueries(4):
+        with queries_captured() as queries:
             subscriptions = gather_subscriptions(get_user_profile_by_email("starnine@mit.edu"))
 
         self.assertTrue(len(subscriptions[0]) >= 2)
@@ -2350,6 +2356,7 @@ class GetSubscribersTest(ZulipTestCase):
                 self.assertTrue(len(sub["subscribers"]) == len(users_to_subscribe))
             else:
                 self.assertTrue(len(sub["subscribers"]) == 0)
+        self.assert_length(queries, 4)
 
     def test_nonsubscriber(self):
         # type: () -> None

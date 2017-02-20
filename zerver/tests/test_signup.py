@@ -262,9 +262,10 @@ class LoginTest(ZulipTestCase):
             self.make_stream(stream_name, realm=realm)
 
         set_default_streams(realm, stream_dict)
-        with self.assertNumQueries(69):
+        with queries_captured() as queries:
             self.register("test@zulip.com", "test")
         # Ensure the number of queries we make is not O(streams)
+        self.assert_max_length(queries, 69)
         user_profile = get_user_profile_by_email('test@zulip.com')
         self.assertEqual(get_session_dict_user(self.client.session), user_profile.id)
         self.assertFalse(user_profile.enable_stream_desktop_notifications)
