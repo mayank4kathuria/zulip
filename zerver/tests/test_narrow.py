@@ -1027,7 +1027,7 @@ class GetOldMessagesTest(ZulipTestCase):
         # type: (Dict[str, object], Text) -> None
         user_profile = get_user_profile_by_email("hamlet@zulip.com")
         request = POSTRequestMock(query_params, user_profile)
-        with queries_captured() as queries:
+        with queries_captured(using='sqlalchemy') as queries:
             get_old_messages_backend(request, user_profile)
 
         for query in queries:
@@ -1059,7 +1059,7 @@ class GetOldMessagesTest(ZulipTestCase):
         )
         request = POSTRequestMock(query_params, user_profile)
 
-        with queries_captured() as all_queries:
+        with queries_captured(using='sqlalchemy') as all_queries:
             get_old_messages_backend(request, user_profile)
 
         # Verify the query for old messages looks correct.
@@ -1087,7 +1087,7 @@ class GetOldMessagesTest(ZulipTestCase):
         )
         request = POSTRequestMock(query_params, user_profile)
 
-        with queries_captured() as all_queries:
+        with queries_captured(using='sqlalchemy') as all_queries:
             get_old_messages_backend(request, user_profile)
 
         # Next, verify the use_first_unread_anchor setting invokes
@@ -1127,7 +1127,7 @@ class GetOldMessagesTest(ZulipTestCase):
         )
         request = POSTRequestMock(query_params, user_profile)
 
-        with queries_captured() as all_queries:
+        with queries_captured(using='sqlalchemy') as all_queries:
             get_old_messages_backend(request, user_profile)
 
         # Do some tests on the main query, to verify the muting logic

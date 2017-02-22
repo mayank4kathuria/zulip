@@ -405,6 +405,11 @@ if USING_PGROONGA:
         DATABASES['default']
     DATABASES['default']['OPTIONS']['options'] = pg_options
 
+DATABASES['sqlalchemy'] = {
+    'ENGINE': 'zproject.db.backends.sqlalchemy',
+    'AUTOCOMMIT': False,
+}
+
 ########################################################################
 # RABBITMQ CONFIGURATION
 ########################################################################
