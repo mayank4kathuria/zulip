@@ -1746,7 +1746,7 @@ class SubscriptionAPITest(ZulipTestCase):
         # Make sure Zephyr mirroring realms such as MIT do not get
         # any tornado subscription events
         self.assert_length(events, 0)
-        self.assert_max_length(queries, 7)
+        self.assert_max_length(queries, 8)
 
     def test_bulk_subscribe_many(self):
         # type: () -> None
@@ -2356,7 +2356,7 @@ class GetSubscribersTest(ZulipTestCase):
                 self.assertTrue(len(sub["subscribers"]) == len(users_to_subscribe))
             else:
                 self.assertTrue(len(sub["subscribers"]) == 0)
-        self.assert_length(queries, 4)
+        self.assert_max_length(queries, 5)
 
     def test_nonsubscriber(self):
         # type: () -> None

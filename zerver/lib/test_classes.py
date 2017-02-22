@@ -17,7 +17,6 @@ from django.db.utils import IntegrityError
 from django.utils.translation import ugettext as _
 
 from zerver.lib.initial_password import initial_password
-from zerver.lib.db import TimeTrackingCursor
 from zerver.lib.str_utils import force_text
 from zerver.lib import cache
 from zerver.tornado.handlers import allocate_handler_id

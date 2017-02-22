@@ -35,7 +35,7 @@ from zerver.lib.digest import send_digest_email
 from zerver.lib.notifications import (
     enqueue_welcome_emails, one_click_unsubscribe_link, send_local_email_template_with_delay)
 from zerver.lib.test_helpers import find_pattern_in_email, find_key_by_email, \
-    HostRequestMock
+    queries_captured, HostRequestMock
 from zerver.lib.test_classes import (
     ZulipTestCase,
 )
